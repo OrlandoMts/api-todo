@@ -1,26 +1,43 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
+import { LogInAuthDto, SignUpAuthDto } from './dto';
+import { Auth } from './entities/auth.entity';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  private readonly logger = new Logger(AuthService.name);
+
+  constructor(
+    @InjectModel(Auth.name)
+    private readonly authMod: Model<Auth>,
+  ) {}
+
+  private _handleError(error: any) {
+    if (error.code === 11000) {
+      throw new BadRequestException(`User already exists`);
+    }
+    this.logger.error(error);
+    throw new InternalServerErrorException(`Check server logs`);
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async signUp(signUpAuthDto: SignUpAuthDto) {
+    try {
+      const data = await this.authMod.create(signUpAuthDto);
+      return data;
+    } catch (error) {
+      this._handleError(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async logIn(logInAuthDto: LogInAuthDto) {
+    console.log('hey');
+    return 'This action login a user';
   }
 }
