@@ -4,10 +4,12 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
+import * as bcrypt from 'bcryptjs';
 import { Model } from 'mongoose';
 
-import { LogInAuthDto, SignUpAuthDto } from './dto';
+import { SignUpAuthDto } from './dto';
 import { Auth } from './entities/auth.entity';
 
 @Injectable()
@@ -17,6 +19,7 @@ export class AuthService {
   constructor(
     @InjectModel(Auth.name)
     private readonly authMod: Model<Auth>,
+    private jwtService: JwtService,
   ) {}
 
   private _handleError(error: any) {
@@ -36,8 +39,28 @@ export class AuthService {
     }
   }
 
-  async logIn(logInAuthDto: LogInAuthDto) {
-    console.log('hey');
-    return 'This action login a user';
+  async validateUser(email: string, pass: string): Promise<any> {
+    // TODO: handle errors
+    const user = await this.authMod.findOne({ email, status: true });
+    if (user && (await bcrypt.compare(pass, user.password))) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...result } = user.toObject();
+      return result;
+    }
+    return null;
   }
+
+  async logIn(user: any) {
+    const payload = { username: user.username, sub: user._id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+  // async logIn(logInAuthDto: LogInAuthDto) {
+  //   // const payload = { username: user.username, sub: user._id, role: user.role };
+  //   return {
+  //     // access_token: this.jwtService.sign(payload),
+  //   };
+  // }
 }
