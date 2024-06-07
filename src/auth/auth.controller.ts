@@ -29,14 +29,13 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Body() signUpAuthDto: SignUpAuthDto) {
+  login(@Body() signUpAuthDto: any) {
     return this.authService.logIn(signUpAuthDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('profile')
   getProfile(@Request() req) {
-    console.log(req);
     return req.user;
   }
 }

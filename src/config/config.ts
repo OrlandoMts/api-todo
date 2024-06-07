@@ -3,6 +3,7 @@ export interface ConfigItf {
   mongodb: string;
   port: number;
   saltRounds: number;
+  jwtSecret: string;
 }
 
 export const EnvConfiguration = (): ConfigItf => ({
@@ -10,4 +11,5 @@ export const EnvConfiguration = (): ConfigItf => ({
   mongodb: process.env.MONGODB,
   port: +process.env.PORT || 3000,
   saltRounds: +process.env.SALT_SYNC || 10,
+  jwtSecret: process.env.JWT_SECRET,
 });

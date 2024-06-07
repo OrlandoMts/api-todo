@@ -39,9 +39,9 @@ export class AuthService {
     }
   }
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(username: string, pass: string): Promise<any> {
     // TODO: handle errors
-    const user = await this.authMod.findOne({ email, status: true });
+    const user = await this.authMod.findOne({ username, status: true });
     if (user && (await bcrypt.compare(pass, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user.toObject();
