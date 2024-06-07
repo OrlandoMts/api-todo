@@ -40,7 +40,6 @@ export class AuthService {
   }
 
   async validateUser(username: string, pass: string): Promise<any> {
-    // TODO: handle errors
     const user = await this.authMod.findOne({ username, status: true });
     if (user && (await bcrypt.compare(pass, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -50,17 +49,11 @@ export class AuthService {
     return null;
   }
 
-  async logIn(user: any) {
-    const payload = { username: user.username, sub: user._id };
+  async logIn(req: any) {
+    const { user } = req;
+    const payload = { username: user.username, _id: user._id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
-
-  // async logIn(logInAuthDto: LogInAuthDto) {
-  //   // const payload = { username: user.username, sub: user._id, role: user.role };
-  //   return {
-  //     // access_token: this.jwtService.sign(payload),
-  //   };
-  // }
 }
