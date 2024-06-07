@@ -8,6 +8,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import { EnvConfiguration } from './config/config';
+import { TodoModule } from './todo/todo.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EnvConfiguration } from './config/config';
     MongooseModule.forRoot(process.env.MONGODB, { dbName: 'todo' }),
     CommonModule,
     AuthModule,
+    TodoModule,
   ],
 })
 export class AppModule {}
