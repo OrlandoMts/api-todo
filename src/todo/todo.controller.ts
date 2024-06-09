@@ -6,8 +6,10 @@ import {
   Param,
   Patch,
   Post,
+  Request,
   UseGuards,
 } from '@nestjs/common';
+
 import { JwtAuthGuard } from 'src/auth/guard';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
@@ -17,9 +19,10 @@ import { TodoService } from './todo.service';
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
-    return this.todoService.create(createTodoDto);
+  create(@Request() req: any, @Body() createTodoDto: CreateTodoDto) {
+    return this.todoService.create(createTodoDto, req);
   }
 
   @UseGuards(JwtAuthGuard)

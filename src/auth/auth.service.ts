@@ -11,6 +11,7 @@ import { Model } from 'mongoose';
 
 import { SignUpAuthDto } from './dto';
 import { Auth } from './entities/auth.entity';
+import { JwtItf } from './interface';
 
 @Injectable()
 export class AuthService {
@@ -51,7 +52,11 @@ export class AuthService {
 
   async logIn(req: any) {
     const { user } = req;
-    const payload = { username: user.username, _id: user._id, role: user.role };
+    const payload: JwtItf = {
+      username: user.username,
+      _id: user._id,
+      role: user.role,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
