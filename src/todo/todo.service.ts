@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -23,7 +24,7 @@ export class TodoService {
     throw new InternalServerErrorException('Check logs', error.message);
   }
 
-  async create(createTodoDto: CreateTodoDto, req: any) {
+  async create(createTodoDto: CreateTodoDto, req: any): Promise<Todo> {
     const { user } = req;
     const body: CreateTodoDto = {
       ...createTodoDto,
@@ -37,16 +38,26 @@ export class TodoService {
     }
   }
 
-  async findAll() {
+  async findAll(): Promise<Todo[]> {
     try {
-      return await this.todoMod.find();
+      return await this.todoMod
+        .find()
+        .populate('author', 'username email')
+        .exec();
     } catch (error) {
       this._handleError(error);
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} todo`;
+  async findOne(id: string): Promise<Todo> {
+    const data = await this.todoMod
+      .findById(id)
+      .populate('author', 'username email')
+      .exec();
+
+    if (!data) throw new NotFoundException(`Not found todo with that id`);
+
+    return data;
   }
 
   update(id: number, updateTodoDto: UpdateTodoDto) {

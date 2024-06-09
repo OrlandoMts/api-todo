@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 
 import { JwtAuthGuard } from 'src/auth/guard';
+import { ParseMongoIdPipe } from 'src/common/pipe';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { TodoService } from './todo.service';
@@ -32,8 +33,8 @@ export class TodoController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todoService.findOne(+id);
+  findOne(@Param('id', ParseMongoIdPipe) id: string) {
+    return this.todoService.findOne(id);
   }
 
   @Patch(':id')
@@ -45,4 +46,7 @@ export class TodoController {
   remove(@Param('id') id: string) {
     return this.todoService.remove(+id);
   }
+
+  // TODO:
+  // toComplete()
 }
