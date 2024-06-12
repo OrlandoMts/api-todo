@@ -24,21 +24,21 @@ export class AuthController {
   @Post('signup')
   @HttpCode(HttpStatus.OK)
   @UsePipes(PasswordHashPipe)
-  create(@Body() signUpAuthDto: SignUpAuthDto) {
-    return this.authService.signUp(signUpAuthDto);
+  async create(@Body() signUpAuthDto: SignUpAuthDto) {
+    return await this.authService.signUp(signUpAuthDto);
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req: any) {
-    return this.authService.logIn(req);
+    return await this.authService.logIn(req);
   }
 
   // NOTE: Endpoint to test rolesGuard
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Admin)
   @Post('profile')
-  getProfile(@Request() req: any) {
-    return req.user;
+  async getProfile(@Request() req: any) {
+    return await req.user;
   }
 }

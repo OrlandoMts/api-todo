@@ -7,6 +7,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
+import { DataHttpItf } from 'src/common/interface';
+import { APIFeatures } from 'src/common/utils/api-features.util';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { Todo } from './entities/todo.entity';
@@ -38,12 +40,26 @@ export class TodoService {
     }
   }
 
-  async findAll(): Promise<Todo[]> {
+  async findAll(query?: any): Promise<DataHttpItf<Todo>> {
     try {
-      return await this.todoMod
-        .find()
-        .populate('author', 'username email')
-        .exec();
+      const response = new APIFeatures(
+        this.todoMod.find().populate('author', 'username email'),
+        query,
+      )
+        .filter()
+        .sort()
+        .limit()
+        .pagination();
+
+      const [todo, count] = await Promise.all([
+        response.mongooseQuery,
+        this.todoMod.countDocuments(response.mongooseQuery),
+      ]);
+      const res = {
+        data: todo,
+        count,
+      };
+      return res;
     } catch (error) {
       this._handleError(error);
     }
@@ -61,6 +77,7 @@ export class TodoService {
   }
 
   update(id: number, updateTodoDto: UpdateTodoDto) {
+    console.log(updateTodoDto);
     return `This action updates a #${id} todo`;
   }
 

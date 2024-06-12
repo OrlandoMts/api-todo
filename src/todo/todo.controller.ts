@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -22,29 +23,29 @@ export class TodoController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Request() req: any, @Body() createTodoDto: CreateTodoDto) {
-    return this.todoService.create(createTodoDto, req);
+  async create(@Request() req: any, @Body() createTodoDto: CreateTodoDto) {
+    return await this.todoService.create(createTodoDto, req);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.todoService.findAll();
+  async findAll(@Req() request: any) {
+    return await this.todoService.findAll(request.query);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseMongoIdPipe) id: string) {
-    return this.todoService.findOne(id);
+  async findOne(@Param('id', ParseMongoIdPipe) id: string) {
+    return await this.todoService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
-    return this.todoService.update(+id, updateTodoDto);
+  async update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
+    return await this.todoService.update(+id, updateTodoDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.todoService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.todoService.remove(+id);
   }
 
   // TODO:

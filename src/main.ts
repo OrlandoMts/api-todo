@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
+import { ResponseInterceptor } from './common/interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,7 +18,7 @@ async function bootstrap() {
       },
     }),
   );
-
+  app.useGlobalInterceptors(new ResponseInterceptor());
   await app.listen(process.env.PORT);
 }
 bootstrap();
