@@ -20,7 +20,10 @@ export class APIFeatures {
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
     const parsedQueryObj = JSON.parse(queryStr);
 
-    // 3) Date Filtering for limitDate
+    // 3) Ensure status is true
+    parsedQueryObj.status = true;
+
+    // 4) Date Filtering for limitDate
     if (parsedQueryObj.limitDate) {
       const date = new Date(parsedQueryObj.limitDate);
       parsedQueryObj.limitDate = {
@@ -29,14 +32,19 @@ export class APIFeatures {
       };
     }
 
-    // 4) Text search for partial words
+    // 5) Text search for partial words
     Object.keys(parsedQueryObj).forEach(key => {
-      if (typeof parsedQueryObj[key] === 'string' && key !== 'author') {
+      if (
+        typeof parsedQueryObj[key] === 'string' &&
+        key !== 'author' &&
+        key !== 'limitDate' &&
+        key !== 'completed'
+      ) {
         parsedQueryObj[key] = { $regex: parsedQueryObj[key], $options: 'i' };
       }
     });
 
-    // 5) Convert author ID to ObjectId
+    // 6) Convert author ID to ObjectId
     if (parsedQueryObj.author) {
       parsedQueryObj.author = new Types.ObjectId(
         parsedQueryObj.author as string,

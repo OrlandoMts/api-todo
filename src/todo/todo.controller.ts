@@ -33,21 +33,30 @@ export class TodoController {
     return await this.todoService.findAll(request.query);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id', ParseMongoIdPipe) id: string) {
     return await this.todoService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
-    return await this.todoService.update(+id, updateTodoDto);
+  async update(
+    @Param('id', ParseMongoIdPipe) id: string,
+    @Body() updateTodoDto: UpdateTodoDto,
+  ) {
+    return await this.todoService.update(id, updateTodoDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await this.todoService.remove(+id);
+  async remove(@Param('id', ParseMongoIdPipe) id: string) {
+    return await this.todoService.remove(id);
   }
 
-  // TODO:
-  // toComplete()
+  @UseGuards(JwtAuthGuard)
+  @Post('complete/:id')
+  async toComplete(@Param('id', ParseMongoIdPipe) id: string) {
+    return await this.todoService.toComplete(id);
+  }
 }

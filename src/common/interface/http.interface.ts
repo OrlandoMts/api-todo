@@ -1,11 +1,12 @@
 export interface ResponseHttpItf<T> {
-  message: string;
+  // message: string;
   data: T;
   ok: boolean;
 }
 
 export interface DataHttpItf<T> {
   data: T;
-  count: number;
+  count?: number;
   page?: number;
+  message?: string;
 }

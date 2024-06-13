@@ -58,6 +58,7 @@ export class TodoService {
       const res = {
         data: todo,
         count,
+        message: 'All todo results',
       };
       return res;
     } catch (error) {
@@ -76,12 +77,45 @@ export class TodoService {
     return data;
   }
 
-  update(id: number, updateTodoDto: UpdateTodoDto) {
-    console.log(updateTodoDto);
-    return `This action updates a #${id} todo`;
+  async update(
+    id: string,
+    updateTodoDto: UpdateTodoDto,
+  ): Promise<DataHttpItf<Todo>> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { author, ...rest } = updateTodoDto;
+    const todo = await this.todoMod.findByIdAndUpdate(
+      id,
+      { ...rest },
+      { new: true },
+    );
+    if (!todo) throw new NotFoundException(`Not found todo with that id`);
+
+    return {
+      data: todo,
+      message: 'Updated successfully',
+    };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} todo`;
+  async remove(id: string): Promise<DataHttpItf<any>> {
+    const todo = await this.todoMod.findByIdAndUpdate(id, { status: false });
+    if (!todo) throw new NotFoundException(`Not found todo with that id`);
+
+    return {
+      data: [],
+      message: 'Delete successfully',
+    };
+  }
+
+  async toComplete(id: string): Promise<DataHttpItf<Todo>> {
+    const todo = await this.todoMod.findByIdAndUpdate(
+      id,
+      { completed: true },
+      { new: true },
+    );
+    if (!todo) throw new NotFoundException(`Not found todo with that id`);
+    return {
+      data: todo,
+      message: 'The todo was completed',
+    };
   }
 }

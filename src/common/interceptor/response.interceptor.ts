@@ -5,7 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Observable, map } from 'rxjs';
-import { ResponseHttpItf } from '../../../dist/common/interface/response.interface';
+import { ResponseHttpItf } from '../interface';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
@@ -16,7 +16,7 @@ export class ResponseInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map(data => {
         return {
-          message: 'success',
+          // message: 'success',
           data,
           ok: true,
         };
