@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -14,12 +15,16 @@ import { RolesGuard } from 'src/common/guard';
 import { Role } from 'src/common/secure';
 import { AuthService } from './auth.service';
 import { SignUpAuthDto } from './dto';
-import { JwtAuthGuard, LocalAuthGuard } from './guard';
+import { GoogleService } from './google.service';
+import { GoogleOauthGuard, JwtAuthGuard, LocalAuthGuard } from './guard';
 import { PasswordHashPipe } from './pipe';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly googleSrv: GoogleService,
+  ) {}
 
   @Post('signup')
   @HttpCode(HttpStatus.OK)
@@ -40,5 +45,19 @@ export class AuthController {
   @Post('profile')
   async getProfile(@Request() req: any) {
     return await req.user;
+  }
+
+  // @UseGuards(CheckTokenExpiryGuard)
+  @UseGuards(GoogleOauthGuard)
+  @Get('google')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async googleAuth(@Request() req: unknown) {
+    // Redirige a Google para autenticación
+  }
+
+  @UseGuards(GoogleOauthGuard)
+  @Get('google/redirect')
+  async googleAuthRedirect(@Request() req: any) {
+    return this.googleSrv.googleLogin(req.user);
   }
 }

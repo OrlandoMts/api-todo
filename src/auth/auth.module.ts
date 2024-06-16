@@ -7,12 +7,20 @@ import { Auth, AuthSchema } from './entities/auth.entity';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { GoogleService } from './google.service';
+import { GoogleStrategy, JwtStrategy, LocalStrategy } from './guard';
 import { PasswordHashPipe } from './pipe';
-import { JwtStrategy, LocalStrategy } from './service';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, PasswordHashPipe, JwtStrategy, LocalStrategy],
+  providers: [
+    AuthService,
+    GoogleService,
+    PasswordHashPipe,
+    JwtStrategy,
+    LocalStrategy,
+    GoogleStrategy,
+  ],
   imports: [
     ConfigModule,
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),

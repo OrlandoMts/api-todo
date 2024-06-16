@@ -4,6 +4,9 @@ export interface ConfigItf {
   port: number;
   saltRounds: number;
   jwtSecret: string;
+  idClientG: string;
+  secretClientG: string;
+  callbackUrlG: string;
 }
 
 export const EnvConfiguration = (): ConfigItf => ({
@@ -12,4 +15,7 @@ export const EnvConfiguration = (): ConfigItf => ({
   port: +process.env.PORT || 3000,
   saltRounds: +process.env.SALT_SYNC || 10,
   jwtSecret: process.env.JWT_SECRET,
+  idClientG: process.env.ID_CLIENT_G,
+  secretClientG: process.env.SECRET_CLIENT_G,
+  callbackUrlG: process.env.CALLBACK_URL_G,
 });

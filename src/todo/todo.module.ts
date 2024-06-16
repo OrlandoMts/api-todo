@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { Auth, AuthSchema } from 'src/auth/entities/auth.entity';
-import { JwtStrategy } from 'src/auth/service';
+import { JwtStrategy } from 'src/auth/guard';
 import { Todo, TodoSchema } from './entities/todo.entity';
 import { TodoController } from './todo.controller';
 import { TodoService } from './todo.service';
