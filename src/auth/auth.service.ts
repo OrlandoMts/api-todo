@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -60,5 +61,21 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async refresh(token: string) {
+    try {
+      const decoded = this.jwtService.verify(token);
+      const payload: JwtItf = {
+        username: decoded.username,
+        _id: decoded._id,
+        role: decoded.role,
+      };
+      return {
+        access_token: this.jwtService.sign(payload),
+      };
+    } catch (e) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 }

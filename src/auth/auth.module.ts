@@ -29,7 +29,7 @@ import { PasswordHashPipe } from './pipe';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('jwtSecret'),
-        signOptions: { expiresIn: '24h' }, //2h
+        signOptions: { expiresIn: '15m' }, //24h
       }),
       inject: [ConfigService],
     }),

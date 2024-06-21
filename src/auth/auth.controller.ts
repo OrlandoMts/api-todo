@@ -60,4 +60,15 @@ export class AuthController {
   async googleAuthRedirect(@Request() req: any) {
     return this.googleSrv.googleLogin(req.user);
   }
+
+  @Post('logout')
+  async logout() {
+    // Only response a confirmation message
+    return { message: 'Logout successful' };
+  }
+
+  @Post('refresh')
+  async refresh(@Body('refresh_token') refresh_token: string) {
+    return this.authService.refresh(refresh_token);
+  }
 }
