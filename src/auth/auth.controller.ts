@@ -16,7 +16,12 @@ import { Role } from 'src/common/secure';
 import { AuthService } from './auth.service';
 import { SignUpAuthDto } from './dto';
 import { GoogleService } from './google.service';
-import { GoogleOauthGuard, JwtAuthGuard, LocalAuthGuard } from './guard';
+import {
+  CheckTokenExpiryGuard,
+  GoogleOauthGuard,
+  JwtAuthGuard,
+  LocalAuthGuard,
+} from './guard';
 import { PasswordHashPipe } from './pipe';
 
 @Controller('auth')
@@ -47,7 +52,7 @@ export class AuthController {
     return await req.user;
   }
 
-  // @UseGuards(CheckTokenExpiryGuard)
+  @UseGuards(CheckTokenExpiryGuard)
   @UseGuards(GoogleOauthGuard)
   @Get('google')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -55,10 +60,17 @@ export class AuthController {
     // Redirige a Google para autenticación
   }
 
+  @Post('google')
+  async loginWithGoogle(@Body() body) {
+    const { idToken } = body;
+    return this.googleSrv.startFlowLogin(idToken);
+  }
+
   @UseGuards(GoogleOauthGuard)
   @Get('google/redirect')
   async googleAuthRedirect(@Request() req: any) {
-    return this.googleSrv.googleLogin(req.user);
+    const { email } = req.user;
+    return this.googleSrv.login(email);
   }
 
   @Post('logout')

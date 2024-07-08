@@ -7,58 +7,49 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import axios from 'axios';
+import { OAuth2Client } from 'google-auth-library';
 import { Model } from 'mongoose';
 
+import { Role } from 'src/common/secure';
 import { encryptPassword, generatePassword } from 'src/common/utils';
 import { SignUpAuthDto } from './dto';
 import { Auth } from './entities/auth.entity';
-import { JwtItf, PayloadGoogleItf } from './interface';
+import { JwtItf } from './interface';
 
 @Injectable()
 export class GoogleService {
   private readonly logger = new Logger(GoogleService.name);
+  private client: OAuth2Client;
 
   constructor(
     @InjectModel(Auth.name)
     private readonly authMod: Model<Auth>,
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) {}
+  ) {
+    this.client = new OAuth2Client(process.env.ID_CLIENT_G);
+  }
 
   private _handleError(error: any) {
     this.logger.error(error);
     throw new InternalServerErrorException('Check logs', error.message);
   }
 
-  // async validateOAuthLogin(
-  //   thirdPartyId: string,
-  //   provider: string,
-  // ): Promise<string> {
-  //   // Aquí puedes buscar o crear el usuario en la base de datos
-  //   const user = await this.authMod.findOne({ thirdPartyId, provider }).exec();
-  //   if (!user) {
-  //     const newUser = new this.authMod({ thirdPartyId, provider });
-  //     await newUser.save();
-  //   }
-  //   const payload: JwtItf = {
-  //     username: user.username,
-  //     _id: user._id as string,
-  //     role: user.role,
-  //   };
-  //   return this.jwtService.sign(payload);
-  // }
+  async startFlowLogin(idToken: string) {
+    const ticket = await this.client.verifyIdToken({
+      idToken,
+      audience: process.env.ID_CLIENT_G,
+    });
 
-  async googleLogin(data: PayloadGoogleItf) {
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    const username = (payload.email as string).split('@');
+
+    return await this.login(email, ...username);
+  }
+
+  async login(email: string, username?: string) {
     let existingUser: Auth;
-    const { email, username, role } = data.user;
-    const password = generatePassword(8, 1, 1, 1, 1);
-    const pwdEncrypted = encryptPassword(password);
-    const body: SignUpAuthDto = {
-      email,
-      username,
-      password: pwdEncrypted,
-      role,
-    };
 
     try {
       existingUser = await this.authMod.findOne({ email }).exec();
@@ -68,6 +59,14 @@ export class GoogleService {
 
     if (!existingUser) {
       try {
+        const password = generatePassword(8, 1, 1, 1, 1);
+        const pwdEncrypted = encryptPassword(password);
+        const body: SignUpAuthDto = {
+          email,
+          username,
+          password: pwdEncrypted,
+          role: Role.User,
+        };
         existingUser = await this.authMod.create(body);
       } catch (error) {
         this._handleError(error);
